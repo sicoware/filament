@@ -46,6 +46,8 @@ interface HasForms
 
     public function isCachingForms(): bool;
 
+    public function processChunks(string $statePath, string $fileKey, string $fileName): void;
+
     public function removeFormUploadedFile(string $statePath, string $fileKey): void;
 
     /**

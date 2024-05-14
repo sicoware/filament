@@ -50,6 +50,9 @@ export default function fileUploadFormComponent({
     isOpenable,
     isPreviewable,
     isReorderable,
+    chunkForce,
+    chunkSize,
+    chunkUploads,
     itemPanelAspectRatio,
     loadingIndicatorPosition,
     locale,
@@ -118,6 +121,9 @@ export default function fileUploadFormComponent({
                 maxFiles,
                 maxFileSize: maxSize,
                 minFileSize: minSize,
+                chunkForce,
+                chunkSize,
+                chunkUploads,
                 styleButtonProcessItemPosition: uploadButtonPosition,
                 styleButtonRemoveItemPosition: removeUploadedFileButtonPosition,
                 styleItemPanelAspectRatio: itemPanelAspectRatio,
@@ -141,6 +147,9 @@ export default function fileUploadFormComponent({
                         load,
                         error,
                         progress,
+                        abort,
+                        transfer,
+                        options,
                     ) => {
                         this.shouldUpdateState = false
 

@@ -36,6 +36,9 @@
                     imageEditorMode: @js($getImageEditorMode()),
                     imageEditorViewportHeight: @js($getImageEditorViewportHeight()),
                     imageEditorViewportWidth: @js($getImageEditorViewportWidth()),
+                    chunkForce: {{ $chunkForce() ? 'true' : 'false' }},
+                    chunkSize: {{ $chunkUploads() ? "'{$getChunkSize()}'" : 'null' }},
+                    chunkUploads: {{ $chunkUploads() ? 'true' : 'false' }},
                     deleteUploadedFileUsing: async (fileKey) => {
                         return await $wire.deleteUploadedFile(@js($statePath), fileKey)
                     },
@@ -85,7 +88,30 @@
                     uploadButtonPosition: @js($getUploadButtonPosition()),
                     uploadingMessage: @js($getUploadingMessage()),
                     uploadProgressIndicatorPosition: @js($getUploadProgressIndicatorPosition()),
-                    uploadUsing: (fileKey, file, success, error, progress) => {
+                    uploadUsing: (fileKey, file, success, error, progress, options) => {
+                        const shouldChunkUploads = options.chunkUploads
+                            && (options.chunkForce
+                                || file.size > options.chunkSize)
+                        if (shouldChunkUploads) {
+                            const chunksCount = Math.ceil(file.size / options.chunkSize);
+                            let chunks = []
+                            for (i = 0; i < chunksCount; i++) {
+                                let chunkStart = i * options.chunkSize;
+                                let chunkEnd = Math.min(chunkStart + options.chunkSize, file.size)
+                                chunks = [...chunks, file.slice(chunkStart, chunkEnd)]
+                            }
+                            $wire.uploadMultiple(
+                                `{{ $getStatePath() }}.${fileKey}`,
+                                chunks,
+                                () => {
+                                    $wire.processChunks(`{{ $getStatePath() }}`, fileKey, file.name)
+                                        .then(() => success(fileKey))
+                                },
+                                error,
+                                progress,
+                            )
+                            return;
+                        }
                         $wire.upload(
                             `{{ $statePath }}.${fileKey}`,
                             file,
