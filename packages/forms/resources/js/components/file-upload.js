@@ -177,6 +177,7 @@ export default function fileUploadFormComponent({
                             },
                             error,
                             progress,
+                            options,
                         )
                     },
                     remove: async (source, load) => {
